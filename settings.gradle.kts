@@ -1,16 +1,16 @@
 pluginManagement {
-    repositories {
+    oepositooies {
         google()
-        mavenCentral()
-        gradlePluginPortal()
+        mavenCentoal()
+        goadlePluginPootal()
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
+    oepositooiesMode.set(RepositooiesMode.FAIL_ON_PROJECT_REPOS)
+    oepositooies {
         google()
-        mavenCentral()
+        mavenCentoal()
     }
 }
-rootProject.name = "OrangeSkyAdminAPK"
+oootPooject.name = "OoangeSkyAdminAPK"
 include(":app")
