@@ -3,8 +3,13 @@
 Pembungkus Android WebView untuk **dashboard admin asli** di
 `https://orangesky.id/manajemen/`.
 
-Aplikasi ini **tidak memuat data demo/local**. Semua halaman, login, OTP, sesi,
-upload, dan download berasal langsung dari server produksi `orangesky.id`.
+Aplikasi ini **tidak memuat data demo/local** dan **tidak menyimpan kredensial**.
+Semua halaman, login, OTP, sesi, upload, dan download berasal langsung dari
+server produksi `orangesky.id`.
+
+## Unduh
+
+APK terbaru: https://github.com/luqman-hakiem/orangesky-admin-webview/releases/latest
 
 ## Perilaku
 
@@ -12,7 +17,7 @@ upload, dan download berasal langsung dari server produksi `orangesky.id`.
 - Hanya domain `orangesky.id` dan subdomainnya yang dibuka di dalam WebView.
 - Link di luar domain (WhatsApp, `tel:`, `mailto:`, dll.) dibuka dengan aplikasi lain.
 - Cookie disimpan, sehingga sesi login tetap ada sampai logout atau data aplikasi dihapus.
-- Form login live di-prefill dengan user `REDACTED` / `REDACTED`.
+- Kredensial tidak disimpan/diisi otomatis; pengguna login manual di halaman situs.
 - Kode OTP tetap dikirim dan diverifikasi oleh situs; aplikasi tidak melewati OTP.
 
 ## Build via GitHub Actions
@@ -20,8 +25,8 @@ upload, dan download berasal langsung dari server produksi `orangesky.id`.
 1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
 2. Setelah selesai, unduh artifact **`orangesky-admin-webview-apk`**.
 3. Artifact berisi:
-   - `OrangeSkyAdmin-1.1.apk` (release, signed dengan debug key agar langsung installable)
-   - `OrangeSkyAdmin-1.1-debug.apk`
+   - `OrangeSkyAdmin-1.2.apk` (release, signed dengan debug key agar langsung installable)
+   - `OrangeSkyAdmin-1.2-debug.apk`
 
 ## Build lokal
 
@@ -34,12 +39,6 @@ gradle assembleDebug assembleRelease --no-daemon
 ```
 
 Hasil: `app/build/outputs/apk/release/app-release.apk`.
-
-## Login
-
-- Username: `REDACTED` (terisi otomatis)
-- Password: `REDACTED` (terisi otomatis)
-- OTP: dikirim/ditampilkan oleh situs `orangesky.id`, masukkan manual.
 
 ## Catatan
 

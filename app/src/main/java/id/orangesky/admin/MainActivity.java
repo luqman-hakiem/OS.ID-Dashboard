@@ -35,10 +35,6 @@ public class MainActivity extends Activity {
     private static final String HOST = "orangesky.id";
     private static final int FILE_CHOOSER_REQUEST = 1001;
 
-    // Prefill opsional pada form login live. OTP tetap dikirim/dimaskan oleh situs.
-    private static final String DEMO_USER = "REDACTED";
-    private static final String DEMO_PASS = "REDACTED";
-
     private WebView web;
     private ProgressBar progress;
     private ValueCallback<Uri[]> filePathCallback;
@@ -79,7 +75,7 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
-        settings.setUserAgentString(settings.getUserAgentString() + " OrangeSkyAdmin/1.1");
+        settings.setUserAgentString(settings.getUserAgentString() + " OrangeSkyAdmin/1.2");
 
         CookieManager cookies = CookieManager.getInstance();
         cookies.setAcceptCookie(true);
@@ -99,14 +95,6 @@ public class MainActivity extends Activity {
                 return openExternally(uri); // WA, tel:, mailto:, dll dibuka di aplikasi lain
             }
 
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                Uri uri = Uri.parse(url);
-                String path = uri.getPath() == null ? "" : uri.getPath().toLowerCase(Locale.ROOT);
-                if (isOrangeSky(uri) && path.endsWith("/login.php")) {
-                    prefillLogin(view);
-                }
-            }
         });
 
         web.setWebChromeClient(new WebChromeClient() {
@@ -168,20 +156,6 @@ public class MainActivity extends Activity {
             // Tidak ada aplikasi penangan: abaikan saja.
         }
         return true;
-    }
-
-    private static String jsString(String value) {
-        return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'";
-    }
-
-    private static void prefillLogin(WebView view) {
-        String script = "(function(){"
-                + "var u=document.querySelector('input[name=uname]');"
-                + "var p=document.querySelector('input[name=upass]');"
-                + "if(u&&!u.value)u.value=" + jsString(DEMO_USER) + ";"
-                + "if(p&&!p.value)p.value=" + jsString(DEMO_PASS) + ";"
-                + "})();";
-        view.evaluateJavascript(script, null);
     }
 
     @Override
