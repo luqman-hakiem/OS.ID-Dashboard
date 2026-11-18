@@ -22,7 +22,7 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 - Antarmuka bergaya aplikasi Android: top bar judul + refresh + menu `⋮`, serta bottom navigation mengambang 5 menu (Rate Plan & Avability, Booking, Property, Member, Laporan). Menu pertama membuka halaman `menu=ratePlans`.
 - Bottom navigation otomatis tersembunyi saat halaman di-scroll ke bawah dan muncul lagi saat di-scroll ke atas.
 - Indikator loading berupa ikon berputar + teks `Memuat...` muncul saat menunggu jaringan, ditambah progress bar tipis di atas halaman.
-- Menu tambahan (Facility, Voucher, User, Tools, laporan lain, Ganti Password, Log Out) ada di tombol `⋮`.
+- Menu tambahan (Rate Plan, Facility, Voucher, User, Tools, laporan lain, Ganti Password, Log Out) ada di tombol `⋮`. `Rate Plan` juga tersedia sebagai tab pertama.
 - Chrome aplikasi otomatis disembunyikan saat halaman login, sehingga layar login tetap bersih.
 - Skala halaman dikembalikan ke perilaku versi 1.3 yang lebih nyaman; tidak ada injeksi viewport/CSS buatan.
 - Mulai v1.6 APK ditandatangani dengan kunci tetap, sehingga update berikutnya bisa mengtimpa instalasi lama tanpa uninstall.
