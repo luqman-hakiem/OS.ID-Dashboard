@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -20,6 +23,7 @@ import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -29,7 +33,7 @@ import java.util.Locale;
 
 /**
  * OS.ID Dashboard — WebView dengan chrome aplikasi Android:
- * top bar, bottom navigation, dan menu "Lainnya".
+ * top bar, bottom navigation mengambang, dan indikator loading jaringan.
  * Konten tetap berasal dari dashboard live orangesky.id.
  */
 public class MainActivity extends Activity {
@@ -40,6 +44,7 @@ public class MainActivity extends Activity {
 
     private static final int ACTIVE_COLOR = Color.parseColor("#28293B");
     private static final int INACTIVE_COLOR = Color.parseColor("#7A7F8C");
+    private static final int GOLD = Color.parseColor("#C0A751");
 
     private static final String[] TAB_LABELS = {
             "Beranda", "Booking", "Property", "Member", "Laporan"
@@ -72,8 +77,13 @@ public class MainActivity extends Activity {
 
     private WebView web;
     private ProgressBar progress;
+    private View loadingCard;
     private LinearLayout topBar;
     private LinearLayout bottomNav;
+    private GestureDetector gestureDetector;
+    private float lastTouchY;
+    private boolean bottomNavHidden;
+
     private final View[] tabItems = new View[5];
     private final ImageView[] tabIcons = new ImageView[5];
     private final TextView[] tabLabels = new TextView[5];
@@ -85,9 +95,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().setStatusBarColor(Color.parseColor("#28293B"));
 
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
+        FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(Color.WHITE);
+
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
 
         // ---------- Top app bar ----------
         topBar = new LinearLayout(this);
@@ -103,14 +115,17 @@ public class MainActivity extends Activity {
         topBar.addView(appTitle, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
 
         TextView refresh = actionText("↻");
-        refresh.setOnClickListener(v -> web.reload());
+        refresh.setOnClickListener(v -> {
+            showLoading();
+            web.reload();
+        });
         topBar.addView(refresh);
 
         TextView more = actionText("⋮");
         more.setOnClickListener(this::showMoreMenu);
         topBar.addView(more);
 
-        root.addView(topBar, new LinearLayout.LayoutParams(
+        content.addView(topBar, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, dp(56)));
 
         // ---------- Web area ----------
@@ -124,41 +139,84 @@ public class MainActivity extends Activity {
         progress.setMax(100);
         progress.setIndeterminate(false);
         progress.setProgressBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#E9E6DA")));
-        progress.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#C0A751")));
+        progress.setProgressTintList(ColorStateList.valueOf(GOLD));
         progress.setVisibility(View.GONE);
         FrameLayout.LayoutParams barParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, dp(4));
         barParams.gravity = Gravity.TOP;
         webArea.addView(progress, barParams);
 
-        root.addView(webArea, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        loadingCard = buildLoadingCard();
+        FrameLayout.LayoutParams loadingParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER);
+        webArea.addView(loadingCard, loadingParams);
 
-        // ---------- Bottom navigation ----------
-        View divider = new View(this);
-        divider.setBackgroundColor(Color.parseColor("#E0E0E0"));
-        root.addView(divider, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        LinearLayout.LayoutParams webParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
+        webParams.bottomMargin = dp(76); // ruang untuk nav mengambang
+        content.addView(webArea, webParams);
 
+        root.addView(content, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+
+        // ---------- Floating bottom navigation ----------
         bottomNav = new LinearLayout(this);
         bottomNav.setOrientation(LinearLayout.HORIZONTAL);
-        bottomNav.setBackgroundColor(Color.WHITE);
+        bottomNav.setBackgroundResource(R.drawable.bg_bottom_nav);
+        bottomNav.setElevation(dp(10));
+        bottomNav.setPadding(dp(4), dp(6), dp(4), dp(6));
         for (int i = 0; i < TAB_LABELS.length; i++) {
-            bottomNav.addView(buildTab(i), new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
+            bottomNav.addView(buildTab(i),
+                    new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
         }
-        root.addView(bottomNav, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(60)));
+        FrameLayout.LayoutParams navParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, dp(64), Gravity.BOTTOM);
+        navParams.setMargins(dp(12), 0, dp(12), dp(12));
+        root.addView(bottomNav, navParams);
 
         setContentView(root);
         setActiveTab(0, false);
-
         configureWebView();
 
         if (savedInstanceState != null) {
             web.restoreState(savedInstanceState);
         } else {
+            showLoading();
             web.loadUrl(BASE);
         }
+    }
+
+    private View buildLoadingCard() {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER);
+        card.setBackgroundResource(R.drawable.bg_loading);
+        card.setPadding(dp(20), dp(16), dp(20), dp(16));
+        card.setElevation(dp(8));
+        card.setClickable(false);
+        card.setFocusable(false);
+
+        ProgressBar spinner = new ProgressBar(this, null, android.R.attr.progressBarStyle);
+        spinner.setIndeterminate(true);
+        spinner.setIndeterminateTintList(ColorStateList.valueOf(GOLD));
+        card.addView(spinner, new LinearLayout.LayoutParams(dp(34), dp(34)));
+
+        TextView label = new TextView(this);
+        label.setText("Memuat...");
+        label.setTextColor(Color.WHITE);
+        label.setTextSize(13);
+        label.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        labelParams.topMargin = dp(8);
+        card.addView(label, labelParams);
+
+        card.setVisibility(View.GONE);
+        return card;
     }
 
     private TextView actionText(String text) {
@@ -176,7 +234,10 @@ public class MainActivity extends Activity {
         item.setOrientation(LinearLayout.VERTICAL);
         item.setGravity(Gravity.CENTER);
         item.setPadding(0, dp(8), 0, dp(6));
-        item.setOnClickListener(v -> setActiveTab(index, true));
+        item.setOnClickListener(v -> {
+            showBottomNav();
+            setActiveTab(index, true);
+        });
 
         ImageView icon = new ImageView(this);
         icon.setImageResource(TAB_ICONS[index]);
@@ -209,7 +270,7 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
-        settings.setUserAgentString(settings.getUserAgentString() + " OSIDDashboard/1.5");
+        settings.setUserAgentString(settings.getUserAgentString() + " OSIDDashboard/1.6");
 
         CookieManager cookies = CookieManager.getInstance();
         cookies.setAcceptCookie(true);
@@ -218,6 +279,33 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             web.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false);
         }
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                lastTouchY = e.getY();
+                return true;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                float delta = e2.getY() - lastTouchY;
+                lastTouchY = e2.getY();
+                if (Math.abs(delta) < 4f) {
+                    return false;
+                }
+                if (delta < 0) {
+                    hideBottomNav();   // jari naik = halaman scroll ke bawah
+                } else {
+                    showBottomNav();   // jari turun = halaman scroll ke atas
+                }
+                return false;
+            }
+        });
+        web.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return false;
+        });
 
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -230,16 +318,30 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                showLoading();
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
+                hideLoading();
                 syncFromUrl(url);
+                showBottomNav();
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                hideLoading();
             }
         });
 
         web.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
+                boolean loading = newProgress < 100;
                 progress.setProgress(newProgress);
-                progress.setVisibility(newProgress >= 100 ? View.GONE : View.VISIBLE);
+                progress.setVisibility(loading ? View.VISIBLE : View.GONE);
+                loadingCard.setVisibility(loading ? View.VISIBLE : View.GONE);
             }
 
             @Override
@@ -268,11 +370,49 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void showLoading() {
+        if (loadingCard == null || progress == null) {
+            return;
+        }
+        progress.setProgress(0);
+        progress.setVisibility(View.VISIBLE);
+        loadingCard.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoading() {
+        if (loadingCard == null || progress == null) {
+            return;
+        }
+        progress.setProgress(100);
+        progress.setVisibility(View.GONE);
+        loadingCard.setVisibility(View.GONE);
+    }
+
+    private void showBottomNav() {
+        if (bottomNav == null) {
+            return;
+        }
+        bottomNav.animate().cancel();
+        bottomNav.animate().translationY(0f).setDuration(180).start();
+        bottomNavHidden = false;
+    }
+
+    private void hideBottomNav() {
+        if (bottomNav == null || bottomNav.getVisibility() != View.VISIBLE || bottomNavHidden) {
+            return;
+        }
+        bottomNav.animate().cancel();
+        bottomNav.animate().translationY(dp(84)).setDuration(180).start();
+        bottomNavHidden = true;
+    }
+
     private void showMoreMenu(View anchor) {
         PopupMenu popup = new PopupMenu(this, anchor);
         for (int i = 0; i < MORE_LABELS.length; i++) {
             final int index = i;
             popup.getMenu().add(MORE_LABELS[i]).setOnMenuItemClickListener(item -> {
+                showLoading();
+                showBottomNav();
                 web.loadUrl(MORE_URLS[index]);
                 return true;
             });
@@ -288,6 +428,7 @@ public class MainActivity extends Activity {
             tabLabels[i].setTextColor(color);
         }
         if (load) {
+            showLoading();
             web.loadUrl(TAB_URLS[index]);
         }
     }
@@ -310,6 +451,13 @@ public class MainActivity extends Activity {
         boolean loginScreen = lower.endsWith("/login.php") || lower.contains("menu=keluar");
         topBar.setVisibility(loginScreen ? View.GONE : View.VISIBLE);
         bottomNav.setVisibility(loginScreen ? View.GONE : View.VISIBLE);
+        if (loginScreen) {
+            bottomNav.setTranslationY(0f);
+            bottomNavHidden = false;
+            hideLoading();
+        } else {
+            showBottomNav();
+        }
     }
 
     private static boolean isOrangeSky(Uri uri) {
@@ -355,6 +503,7 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         if (web != null && web.canGoBack()) {
+            showLoading();
             web.goBack();
         } else if (activeTab != 0) {
             setActiveTab(0, true);
