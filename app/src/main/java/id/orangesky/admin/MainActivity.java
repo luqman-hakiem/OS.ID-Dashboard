@@ -265,11 +265,15 @@ public class MainActivity extends Activity {
         settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(false);
         settings.setAllowContentAccess(true);
-        settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(false);
+        settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(false);
+        settings.setDisplayZoomControls(false);
+        settings.setTextZoom(100);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
-        settings.setUserAgentString(settings.getUserAgentString() + " OSIDDashboard/1.7");
+        settings.setUserAgentString(settings.getUserAgentString() + " OSIDDashboard/1.11");
 
         CookieManager cookies = CookieManager.getInstance();
         cookies.setAcceptCookie(true);
@@ -326,6 +330,7 @@ public class MainActivity extends Activity {
                 hideLoading();
                 syncFromUrl(url);
                 showBottomNav();
+                fitToDevice(view);
             }
 
             @Override
@@ -367,6 +372,36 @@ public class MainActivity extends Activity {
                 openExternally(Uri.parse(url));
             }
         });
+    }
+
+    /**
+     * Render halaman selebar perangkat (bukan di-scaling mengecil agar muat semua),
+     * supaya teks tabel/rate plan tetap terbaca. Tabel lebar tetap bisa di-scroll
+     * horizontal atau diperbesar dengan pinch-zoom.
+     */
+    private static void fitToDevice(WebView view) {
+        String viewport = "width=device-width, initial-scale=1, minimum-scale=0.5,"
+                + " maximum-scale=5, user-scalable=yes";
+        String css = "html,body{max-width:100%!important}"
+                + "img,video{max-width:100%!important;height:auto!important}"
+                + ".dataTables_wrapper,.table-responsive{overflow-x:auto!important}";
+
+        String script = "(function(){"
+                + "var c=" + jsLiteral(viewport) + ";"
+                + "var m=document.querySelector('meta[name=viewport]');"
+                + "if(m){m.setAttribute('content',c);}else{"
+                + "m=document.createElement('meta');m.name='viewport';"
+                + "m.setAttribute('content',c);document.head.appendChild(m);}"
+                + "var s=document.getElementById('osid-fit');"
+                + "if(!s){s=document.createElement('style');s.id='osid-fit';"
+                + "s.textContent=" + jsLiteral(css) + ";"
+                + "document.head.appendChild(s);}"
+                + "})();";
+        view.evaluateJavascript(script, null);
+    }
+
+    private static String jsLiteral(String value) {
+        return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'";
     }
 
     private void showLoading() {
