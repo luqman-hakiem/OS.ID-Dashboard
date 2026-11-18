@@ -1,4 +1,4 @@
-# OS.ID-Dashboard — WebView Live
+# OS.ID Dashboard — WebView Live
 
 Pembungkus Android WebView untuk **dashboard admin asli** di
 `https://orangesky.id/manajemen/`.
@@ -19,10 +19,10 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 - Hanya domain `orangesky.id` dan subdomainnya yang dibuka di dalam WebView.
 - Link di luar domain (WhatsApp, `tel:`, `mailto:`, dll.) dibuka dengan aplikasi lain.
 - Cookie disimpan, sehingga sesi login tetap ada sampai logout atau data aplikasi dihapus.
-- Antarmuka bergaya aplikasi Android: top bar judul + refresh + menu `⋮`, serta bottom navigation mengambang 5 menu (Beranda, Booking, Property, Member, Laporan).
+- Antarmuka bergaya aplikasi Android: top bar judul + refresh + menu `⋮`, serta bottom navigation mengambang 5 menu (Rate Plan & Avability, Booking, Property, Member, Laporan). Menu pertama membuka halaman `menu=ratePlans`.
 - Bottom navigation otomatis tersembunyi saat halaman di-scroll ke bawah dan muncul lagi saat di-scroll ke atas.
 - Indikator loading berupa ikon berputar + teks `Memuat...` muncul saat menunggu jaringan, ditambah progress bar tipis di atas halaman.
-- Menu tambahan (Rate Plan, Voucher, User, Tools, laporan lain, Ganti Password, Log Out) ada di tombol `⋮`.
+- Menu tambahan (Facility, Voucher, User, Tools, laporan lain, Ganti Password, Log Out) ada di tombol `⋮`.
 - Chrome aplikasi otomatis disembunyikan saat halaman login, sehingga layar login tetap bersih.
 - Skala halaman dikembalikan ke perilaku versi 1.3 yang lebih nyaman; tidak ada injeksi viewport/CSS buatan.
 - Mulai v1.6 APK ditandatangani dengan kunci tetap, sehingga update berikutnya bisa mengtimpa instalasi lama tanpa uninstall.
@@ -34,7 +34,7 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
 2. Setelah selesai, unduh artifact **`OS.ID-Dashboard-apk`**.
 3. Artifact berisi:
-   - `OS.ID-Dashboard-1.7.apk` (release, ditandatangani kunci tetap agar bisa mengtimpa versi sebelumnya)
+   - `OS.ID.Dashboard-1.10.apk` (release, ditandatangani kunci tetap agar bisa mengtimpa versi sebelumnya)
 4. Workflow mendekode keystore dariGitHub Actions secrets `OSID_KEYSTORE_B64`,
    `OSID_KEYSTORE_PASSWORD`, `OSID_KEYSTORE_KEY_PASSWORD`, dan `OSID_KEYSTORE_ALIAS`.
 

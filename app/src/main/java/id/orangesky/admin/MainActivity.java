@@ -32,7 +32,7 @@ import android.webkit.WebViewClient;
 import java.util.Locale;
 
 /**
- * OS.ID-Dashboard — WebView dengan chrome aplikasi Android:
+ * OS.ID Dashboard — WebView dengan chrome aplikasi Android:
  * top bar, bottom navigation mengambang, dan indikator loading jaringan.
  * Konten tetap berasal dari dashboard live orangesky.id.
  */
@@ -47,17 +47,17 @@ public class MainActivity extends Activity {
     private static final int GOLD = Color.parseColor("#C0A751");
 
     private static final String[] TAB_LABELS = {
-            "Beranda", "Booking", "Property", "Member", "Laporan"
+            "Rate Plan & Avability", "Booking", "Property", "Member", "Laporan"
     };
     private static final int[] TAB_ICONS = {
-            R.drawable.ic_nav_home,
+            R.drawable.ic_nav_rate,
             R.drawable.ic_nav_booking,
             R.drawable.ic_nav_property,
             R.drawable.ic_nav_member,
             R.drawable.ic_nav_report
     };
     private static final String[] TAB_URLS = {
-            BASE,
+            INDEX + "ratePlans",
             INDEX + "bookingKeyword",
             INDEX + "property",
             INDEX + "member",
@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
         topBar.setPadding(dp(16), 0, dp(8), 0);
 
         TextView appTitle = new TextView(this);
-        appTitle.setText("OS.ID-Dashboard");
+        appTitle.setText("OS.ID Dashboard");
         appTitle.setTextColor(Color.WHITE);
         appTitle.setTextSize(18);
         topBar.addView(appTitle, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
@@ -437,8 +437,7 @@ public class MainActivity extends Activity {
         int index = 0;
         if (lower.contains("menu=bookingkeyword") || lower.contains("menu=bookingdate")) {
             index = 1;
-        } else if (lower.contains("menu=property") || lower.contains("menu=rateplans")
-                || lower.contains("menu=facility")) {
+        } else if (lower.contains("menu=property") || lower.contains("menu=facility")) {
             index = 2;
         } else if (lower.contains("menu=member")) {
             index = 3;
