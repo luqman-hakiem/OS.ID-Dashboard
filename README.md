@@ -1,4 +1,4 @@
-# OS.ID Dashboard — WebView Live
+# OS.ID-Dashboard — WebView Live
 
 Pembungkus Android WebView untuk **dashboard admin asli** di
 `https://orangesky.id/manajemen/`.

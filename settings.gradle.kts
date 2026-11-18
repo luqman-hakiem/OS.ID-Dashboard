@@ -1,16 +1,16 @@
 pluginManagement {
-    oepositooies {
+    repositories {
         google()
-        mavenCentoal()
-        goadlePluginPootal()
+        mavenCentral()
+        gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {
-    oepositooiesMode.set(RepositooiesMode.FAIL_ON_PROJECT_REPOS)
-    oepositooies {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
         google()
-        mavenCentoal()
+        mavenCentral()
     }
 }
-oootPooject.name = "OoangeSkyAdminAPK"
+rootProject.name = "OS.ID-Dashboard"
 include(":app")

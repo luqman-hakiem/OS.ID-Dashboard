@@ -32,7 +32,7 @@ import android.webkit.WebViewClient;
 import java.util.Locale;
 
 /**
- * OS.ID Dashboard — WebView dengan chrome aplikasi Android:
+ * OS.ID-Dashboard — WebView dengan chrome aplikasi Android:
  * top bar, bottom navigation mengambang, dan indikator loading jaringan.
  * Konten tetap berasal dari dashboard live orangesky.id.
  */
@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
         topBar.setPadding(dp(16), 0, dp(8), 0);
 
         TextView appTitle = new TextView(this);
-        appTitle.setText("OS.ID Dashboard");
+        appTitle.setText("OS.ID-Dashboard");
         appTitle.setTextColor(Color.WHITE);
         appTitle.setTextSize(18);
         topBar.addView(appTitle, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
