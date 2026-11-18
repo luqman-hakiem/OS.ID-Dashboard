@@ -11,6 +11,8 @@ server produksi `orangesky.id`.
 
 APK terbaru: https://github.com/luqman-hakiem/orangesky-admin-webview/releases/latest
 
+Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
+
 ## Perilaku
 
 - Start URL: `https://orangesky.id/manajemen/`
@@ -26,7 +28,6 @@ APK terbaru: https://github.com/luqman-hakiem/orangesky-admin-webview/releases/l
 2. Setelah selesai, unduh artifact **`orangesky-admin-webview-apk`**.
 3. Artifact berisi:
    - `OS.ID-Dashboard-1.3.apk` (release, signed dengan debug key agar langsung installable)
-   - `OS.ID-Dashboard-1.3-debug.apk`
 
 ## Build lokal
 
