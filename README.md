@@ -32,7 +32,7 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 ## Build via GitHub Actions
 
 1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
-2. Setelah selesai, unduh artifact **`orangesky-admin-webview-apk`**.
+2. Setelah selesai, unduh artifact **`OS.ID-Dashboard-apk`**.
 3. Artifact berisi:
    - `OS.ID-Dashboard-1.7.apk` (release, ditandatangani kunci tetap agar bisa mengtimpa versi sebelumnya)
 4. Workflow mendekode keystore dariGitHub Actions secrets `OSID_KEYSTORE_B64`,
