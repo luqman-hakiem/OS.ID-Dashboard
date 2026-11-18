@@ -155,7 +155,6 @@ public class MainActivity extends Activity {
 
         LinearLayout.LayoutParams webParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
-        webParams.bottomMargin = dp(76); // ruang untuk nav mengambang
         content.addView(webArea, webParams);
 
         root.addView(content, new FrameLayout.LayoutParams(
@@ -270,7 +269,7 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
-        settings.setUserAgentString(settings.getUserAgentString() + " OSIDDashboard/1.6");
+        settings.setUserAgentString(settings.getUserAgentString() + " OSIDDashboard/1.7");
 
         CookieManager cookies = CookieManager.getInstance();
         cookies.setAcceptCookie(true);

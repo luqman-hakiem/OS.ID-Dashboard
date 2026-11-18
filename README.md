@@ -34,7 +34,7 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
 2. Setelah selesai, unduh artifact **`orangesky-admin-webview-apk`**.
 3. Artifact berisi:
-   - `OS.ID-Dashboard-1.6.apk` (release, ditandatangani kunci tetap agar bisa mengtimpa versi sebelumnya)
+   - `OS.ID-Dashboard-1.7.apk` (release, ditandatangani kunci tetap agar bisa mengtimpa versi sebelumnya)
 4. Workflow mendekode keystore dariGitHub Actions secrets `OSID_KEYSTORE_B64`,
    `OSID_KEYSTORE_PASSWORD`, `OSID_KEYSTORE_KEY_PASSWORD`, dan `OSID_KEYSTORE_ALIAS`.
 
@@ -58,7 +58,7 @@ Hasil: `app/build/outputs/apk/release/app-release.apk`.
 ## Catatan
 
 - Versi v1.5 ke bawah dibangun dengan debug key otomatis GitHub yang berubah setiap
-  run. Karena itu, saat pertama kali memasang v1.6 di perangkat yang masih memuat
-  v1.5, Android mungkin meminta uninstall sekali. Setelah v1.6 terpasang, rilis
-  berikutnya dapat langsung mengtimpa.
+  run. Karena itu, saat pertama kali memasang v1.6/v1.7 di perangkat yang masih
+  memuat v1.5 atau lama, Android mungkin meminta uninstall sekali. Setelah v1.6
+  atau lebih baru terpasang, rilis berikutnya dapat langsung mengtimpa.
 - Untuk Play Store: ganti keystore dengan keystore resmi dan naikkan `versionCode`.
