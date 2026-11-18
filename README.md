@@ -1,16 +1,27 @@
-# OrangeSky Admin WebView APK
+# OrangeSky Admin — WebView Live
 
-Dashboard admin OrangeSky dibungkus sebagai aplikasi Android WebView. Aset web statis
-disimpan di `app/src/main/assets/public` dan disajikan pada origin `https://app.local/`
-agar `localStorage` dan upload file berfungsi layaknya web.
+Pembungkus Android WebView untuk **dashboard admin asli** di
+`https://orangesky.id/manajemen/`.
+
+Aplikasi ini **tidak memuat data demo/local**. Semua halaman, login, OTP, sesi,
+upload, dan download berasal langsung dari server produksi `orangesky.id`.
+
+## Perilaku
+
+- Start URL: `https://orangesky.id/manajemen/`
+- Hanya domain `orangesky.id` dan subdomainnya yang dibuka di dalam WebView.
+- Link di luar domain (WhatsApp, `tel:`, `mailto:`, dll.) dibuka dengan aplikasi lain.
+- Cookie disimpan, sehingga sesi login tetap ada sampai logout atau data aplikasi dihapus.
+- Form login live di-prefill dengan user `REDACTED` / `REDACTED`.
+- Kode OTP tetap dikirim dan diverifikasi oleh situs; aplikasi tidak melewati OTP.
 
 ## Build via GitHub Actions
 
-1. Push ke branch `main`, atau buka tab **Actions** → **Build WebView APK** → **Run workflow**.
+1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
 2. Setelah selesai, unduh artifact **`orangesky-admin-webview-apk`**.
 3. Artifact berisi:
-   - `OrangeSkyAdmin-1.0.apk` (release, signing debug)
-   - `OrangeSkyAdmin-1.0-debug.apk` (debug)
+   - `OrangeSkyAdmin-1.1.apk` (release, signed dengan debug key agar langsung installable)
+   - `OrangeSkyAdmin-1.1-debug.apk`
 
 ## Build lokal
 
@@ -24,14 +35,13 @@ gradle assembleDebug assembleRelease --no-daemon
 
 Hasil: `app/build/outputs/apk/release/app-release.apk`.
 
-## Login demo
+## Login
 
-- Username: `REDACTED`
-- Password: `REDACTED`
-- Kode OTP: `482913`
+- Username: `REDACTED` (terisi otomatis)
+- Password: `REDACTED` (terisi otomatis)
+- OTP: dikirim/ditampilkan oleh situs `orangesky.id`, masukkan manual.
 
 ## Catatan
 
-Data yang dipakai adalah data dummy lokal (`localStorage`), bukan koneksi langsung ke
-database produksi `orangesky.id`. Untuk Play Store, ganti signingConfig release dengan
-keystore resmi dan naikkan `versionCode`.
+Untuk Play Store: ganti `signingConfig` release dengan keystore resmi dan naikkan
+`versionCode`. Saat ini release memakai debug key agar bisa langsung diinstal.

@@ -1,56 +1,73 @@
 package id.orangesky.admin;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Locale;
 
 /**
- * Aktivitas utama: membungkus dashboard web OrangeSky di dalam WebView.
- * Aset web disimpan di app/src/main/assets/public dan disajikan pada origin
- * https://app.local/ agar localStorage & upload file berfungsi seperti web.
+ * WebView wrapper untuk dashboard adminlive di https://orangesky.id/manajemen/.
+ *
+ * Tidak ada aset lokal dan tidak ada data dummy: semua halaman, login, OTP,
+ * sesi, dan download berasal dari server orangesky.id yang asli.
  */
 public class MainActivity extends Activity {
 
-    private static final String HOST = "app.local";
+    private static final String START_URL = "https://orangesky.id/manajemen/";
+    private static final String HOST = "orangesky.id";
     private static final int FILE_CHOOSER_REQUEST = 1001;
 
+    // Prefill opsional pada form login live. OTP tetap dikirim/dimaskan oleh situs.
+    private static final String DEMO_USER = "REDACTED";
+    private static final String DEMO_PASS = "REDACTED";
+
     private WebView web;
+    private ProgressBar progress;
     private ValueCallback<Uri[]> filePathCallback;
-    private final Map<String, String> mimeTypes = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mimeTypes.put(".html", "text/html");
-        mimeTypes.put(".css", "text/css");
-        mimeTypes.put(".js", "application/javascript");
-        mimeTypes.put(".json", "application/json");
-        mimeTypes.put(".png", "image/png");
-        mimeTypes.put(".jpg", "image/jpeg");
-        mimeTypes.put(".jpeg", "image/jpeg");
-        mimeTypes.put(".webp", "image/webp");
-        mimeTypes.put(".svg", "image/svg+xml");
-        mimeTypes.put(".ico", "image/x-icon");
-
-        getWindow().setStatusBarColor(Color.parseColor("#1D1D1F"));
+        getWindow().setStatusBarColor(Color.parseColor("#28293B"));
 
         web = new WebView(this);
-        setContentView(web);
+
+        progress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        progress.setMax(100);
+        progress.setIndeterminate(false);
+        progress.setProgressBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#28293B")));
+        progress.setProgressTintList(ColorStateList.valueOf(Color.parseColor("#C0A751")));
+        progress.setVisibility(View.GONE);
+
+        FrameLayout container = new FrameLayout(this);
+        container.addView(web, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+
+        int barHeight = Math.round(getResources().getDisplayMetrics().density * 4);
+        FrameLayout.LayoutParams barParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, barHeight);
+        barParams.gravity = Gravity.TOP;
+        container.addView(progress, barParams);
+        setContentView(container);
 
         WebSettings settings = web.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -60,45 +77,48 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(true);
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
-        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        settings.setUserAgentString(settings.getUserAgentString() + " OrangeSkyAdmin/1.1");
+
+        CookieManager cookies = CookieManager.getInstance();
+        cookies.setAcceptCookie(true);
+        cookies.setAcceptThirdPartyCookies(web, true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            web.setRendererPriorityPolicy(WebView.RENDERER_PRIORITY_IMPORTANT, false);
+        }
 
         web.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Uri url = request.getUrl();
-                return !HOST.equals(url.getHost()); // blokir navigasi keluar aplikasi
+                Uri uri = request.getUrl();
+                if (isOrangeSky(uri)) {
+                    return false; // tetap di dalam WebView
+                }
+                return openExternally(uri); // WA, tel:, mailto:, dll dibuka di aplikasi lain
             }
 
             @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                Uri url = request.getUrl();
-                if (!"https".equalsIgnoreCase(url.getScheme()) || !HOST.equals(url.getHost())) {
-                    return null;
-                }
-                String path = url.getPath();
-                if (path == null || path.isEmpty() || "/".equals(path)) {
-                    path = "/index.html";
-                }
-                String assetPath = "public" + path;
-                try {
-                    InputStream stream = getAssets().open(assetPath);
-                    String mime = "application/octet-stream";
-                    int dot = assetPath.lastIndexOf('.');
-                    if (dot >= 0) {
-                        mime = mimeTypes.getOrDefault(assetPath.substring(dot).toLowerCase(), "application/octet-stream");
-                    }
-                    return new WebResourceResponse(mime, "UTF-8", stream);
-                } catch (IOException e) {
-                    return new WebResourceResponse(
-                            "text/plain", "UTF-8", 404, "Not Found",
-                            new HashMap<String, String>(), null);
+            public void onPageFinished(WebView view, String url) {
+                Uri uri = Uri.parse(url);
+                String path = uri.getPath() == null ? "" : uri.getPath().toLowerCase(Locale.ROOT);
+                if (isOrangeSky(uri) && path.endsWith("/login.php")) {
+                    prefillLogin(view);
                 }
             }
         });
 
         web.setWebChromeClient(new WebChromeClient() {
             @Override
-            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
+            public void onProgressChanged(WebView view, int newProgress) {
+                progress.setProgress(newProgress);
+                progress.setVisibility(newProgress >= 100 ? View.GONE : View.VISIBLE);
+            }
+
+            @Override
+            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback,
+                                             FileChooserParams params) {
                 if (filePathCallback != null) {
                     filePathCallback.onReceiveValue(null);
                 }
@@ -113,7 +133,55 @@ public class MainActivity extends Activity {
             }
         });
 
-        web.loadUrl("https://" + HOST + "/index.html");
+        web.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition,
+                                        String mimeType, long contentLength) {
+                openExternally(Uri.parse(url));
+            }
+        });
+
+        if (savedInstanceState != null) {
+            web.restoreState(savedInstanceState);
+        } else {
+            web.loadUrl(START_URL);
+        }
+    }
+
+    private static boolean isOrangeSky(Uri uri) {
+        String scheme = uri.getScheme();
+        if (scheme == null || (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http"))) {
+            return false;
+        }
+        String host = uri.getHost();
+        if (host == null) {
+            return false;
+        }
+        host = host.toLowerCase(Locale.ROOT);
+        return host.equals(HOST) || host.endsWith("." + HOST);
+    }
+
+    private boolean openExternally(Uri uri) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        } catch (ActivityNotFoundException e) {
+            // Tidak ada aplikasi penangan: abaikan saja.
+        }
+        return true;
+    }
+
+    private static String jsString(String value) {
+        return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'";
+    }
+
+    private static void prefillLogin(WebView view) {
+        String script = "(function(){"
+                + "var u=document.querySelector('input[name=uname]');"
+                + "var p=document.querySelector('input[name=upass]');"
+                + "if(u&&!u.value)u.value=" + jsString(DEMO_USER) + ";"
+                + "if(p&&!p.value)p.value=" + jsString(DEMO_PASS) + ";"
+                + "})();";
+        view.evaluateJavascript(script, null);
     }
 
     @Override
@@ -136,6 +204,14 @@ public class MainActivity extends Activity {
             web.goBack();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (web != null) {
+            web.saveState(outState);
         }
     }
 
