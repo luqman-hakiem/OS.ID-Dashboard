@@ -24,7 +24,7 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 - Indikator loading berupa ikon berputar + teks `Memuat...` muncul saat menunggu jaringan, ditambah progress bar tipis di atas halaman.
 - Menu tambahan (Rate Plan, Facility, Voucher, User, Tools, laporan lain, Ganti Password, Log Out) ada di tombol `⋮`. `Rate Plan` juga tersedia sebagai tab pertama.
 - Chrome aplikasi otomatis disembunyikan saat halaman login, sehingga layar login tetap bersih.
-- Mulai v1.11 halaman dirender selebar perangkat (`width=device-width`, overview mode mati) agar teks tabel/rate plan tidak mengecil; pinch-zoom dan scroll horizontal tetap tersedia untuk tabel lebar.
+- Skala halaman seperti versi 1.10 dan sebelumnya (overview mode); perubahan scaling di v1.11 dibatalkan karena membuat header situs membesar.
 - Mulai v1.6 APK ditandatangani dengan kunci tetap, sehingga update berikutnya bisa mengtimpa instalasi lama tanpa uninstall.
 - Kredensial tidak disimpan/diisi otomatis; pengguna login manual di halaman situs.
 - Kode OTP tetap dikirim dan diverifikasi oleh situs; aplikasi tidak melewati OTP.
@@ -34,7 +34,7 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
 2. Setelah selesai, unduh artifact **`OS.ID-Dashboard-apk`**.
 3. Artifact berisi:
-   - `OS.ID.Dashboard-1.11.apk` (release, ditandatangani kunci tetap agar bisa mengtimpa versi sebelumnya)
+   - `OS.ID.Dashboard-1.12.apk` (release, ditandatangani kunci tetap agar bisa mengtimpa versi sebelumnya)
 4. Workflow mendekode keystore dariGitHub Actions secrets `OSID_KEYSTORE_B64`,
    `OSID_KEYSTORE_PASSWORD`, `OSID_KEYSTORE_KEY_PASSWORD`, dan `OSID_KEYSTORE_ALIAS`.
 
