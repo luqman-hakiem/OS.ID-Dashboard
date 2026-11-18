@@ -19,7 +19,10 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 - Hanya domain `orangesky.id` dan subdomainnya yang dibuka di dalam WebView.
 - Link di luar domain (WhatsApp, `tel:`, `mailto:`, dll.) dibuka dengan aplikasi lain.
 - Cookie disimpan, sehingga sesi login tetap ada sampai logout atau data aplikasi dihapus.
-- Tampilan mengikuti lebar layar perangkat; halaman tidak dipaksa mengecil, dan pinch-zoom tetap aktif untuk HP kecil.
+- Antarmuka bergaya aplikasi Android: top bar judul + refresh + menu `⋮`, serta bottom navigation 5 menu (Beranda, Booking, Property, Member, Laporan).
+- Menu tambahan (Rate Plan, Voucher, User, Tools, laporan lain, Ganti Password, Log Out) ada di tombol `⋮`.
+- Chrome aplikasi otomatis disembunyikan saat halaman login, sehingga layar login tetap bersih.
+- Skala halaman dikembalikan ke perilaku versi 1.3 yang lebih nyaman; tidak ada injeksi viewport/CSS buatan.
 - Kredensial tidak disimpan/diisi otomatis; pengguna login manual di halaman situs.
 - Kode OTP tetap dikirim dan diverifikasi oleh situs; aplikasi tidak melewati OTP.
 
@@ -28,7 +31,7 @@ Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
 2. Setelah selesai, unduh artifact **`orangesky-admin-webview-apk`**.
 3. Artifact berisi:
-   - `OS.ID-Dashboard-1.4.apk` (release, signed dengan debug key agar langsung installable)
+   - `OS.ID-Dashboard-1.5.apk` (release, signed dengan debug key agar langsung installable)
 
 ## Build lokal
 
