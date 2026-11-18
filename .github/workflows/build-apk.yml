@@ -40,8 +40,8 @@ jobs:
       - name: Siapkan artifact
         run: |
           mkdir -p dist
-          cp app/build/outputs/apk/release/app-release.apk dist/OrangeSkyAdmin-1.2.apk
-          cp app/build/outputs/apk/debug/app-debug.apk dist/OrangeSkyAdmin-1.2-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk dist/OS.ID-Dashboard-1.3.apk
+          cp app/build/outputs/apk/debug/app-debug.apk dist/OS.ID-Dashboard-1.3-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

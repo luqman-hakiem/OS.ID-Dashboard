@@ -1,4 +1,4 @@
-# OrangeSky Admin — WebView Live
+# OS.ID Dashboard — WebView Live
 
 Pembungkus Android WebView untuk **dashboard admin asli** di
 `https://orangesky.id/manajemen/`.
@@ -25,8 +25,8 @@ APK terbaru: https://github.com/luqman-hakiem/orangesky-admin-webview/releases/l
 1. Push ke branch `main`, atau buka tab **Actions → Build WebView APK → Run workflow**.
 2. Setelah selesai, unduh artifact **`orangesky-admin-webview-apk`**.
 3. Artifact berisi:
-   - `OrangeSkyAdmin-1.2.apk` (release, signed dengan debug key agar langsung installable)
-   - `OrangeSkyAdmin-1.2-debug.apk`
+   - `OS.ID-Dashboard-1.3.apk` (release, signed dengan debug key agar langsung installable)
+   - `OS.ID-Dashboard-1.3-debug.apk`
 
 ## Build lokal
 
