@@ -9,7 +9,7 @@ server produksi `orangesky.id`.
 
 ## Unduh
 
-APK terbaru: https://github.com/luqman-hakiem/orangesky-admin-webview/releases/latest
+APK terbaru: https://github.com/luqman-hakiem/OS.ID-Dashboard/releases/latest
 
 Hanya varian **release** yang dipublikasikan. Varian debug tidak diunggah.
 
